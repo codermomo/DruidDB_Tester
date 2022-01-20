@@ -187,7 +187,24 @@ public class DruidAdapter implements BaseAdapter {
                 resultSet.close();
             }
         }
-        return (endTime - startTime) / 1000 / 1000;
+	double accTime = endTime - startTime;
+	String query2 = String.format("""
+				SELECT Id, EXTRACT(YEAR FROM __time), 
+				AVG("ClosePrice"), MAX("ClosePrice"), MIN("ClosePrice")
+				FROM %s
+				WHERE EXTRACT(YEAR FROM __time) >= 2022 AND EXTRACT(YEAR FROM __time) < 2032
+				GROUP BY Id, EXTRACT(YEAR FROM __time)
+				ORDER BY Id, EXTRACT(YEAR FROM __time)
+				""", dataSourceName);
+	try (Connection connection = DriverManager.getConnection(queryURL, properties)) {
+            try (final PreparedStatement preparedStatement = connection.prepareStatement(query2)) {
+                startTime = System.nanoTime();
+                final ResultSet resultSet = preparedStatement.executeQuery();
+                endTime = System.nanoTime();
+                resultSet.close();
+            }
+        }
+        return (accTime + endTime - startTime) / 1000 / 1000;
     }
 
     public double query2() throws SQLException, ClassNotFoundException {
