@@ -1,0 +1,33 @@
+#!/bin/bash
+echo "start running..."
+
+# install zip and unzip
+apt-get install -y zip
+apt-get install -y unzip
+
+# install java
+echo "install java"
+apt-get install -y curl
+curl -s "https://get.sdkman.io" | bash
+source "/root/.sdkman/bin/sdkman-init.sh"
+sdk install java 8.0.265-open
+echo "installed java"
+
+# install git
+echo "install git"
+apt install -y git
+echo "installed git"
+
+# install DruidDB
+echo "install DruidDB"
+mkdir ./DruidDB/
+cd ./DruidDB/
+wget https://dlcdn.apache.org/druid/0.22.1/apache-druid-0.22.1-bin.tar.gz
+tar -xzf apache-druid-0.22.1-bin.tar.gz
+rm -f apache-druid-0.22.1-bin.tar.gz
+cd apache-druid-0.22.1
+echo "installed DruidDB"
+
+echo "finish execution..."
+source "/root/.sdkman/bin/sdkman-init.sh"
+echo "run \"source \"/root/.sdkman/bin/sdkman-init.sh\"\" again!"
