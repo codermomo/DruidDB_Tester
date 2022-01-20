@@ -188,6 +188,7 @@ public class DruidAdapter implements BaseAdapter {
             }
         }
 	double accTime = endTime - startTime;
+	
 	String query2 = String.format("""
 				SELECT Id, EXTRACT(YEAR FROM __time), 
 				AVG("ClosePrice"), MAX("ClosePrice"), MIN("ClosePrice")
@@ -204,7 +205,27 @@ public class DruidAdapter implements BaseAdapter {
                 resultSet.close();
             }
         }
-        return (accTime + endTime - startTime) / 1000 / 1000;
+	accTime += endTime-startTime;
+	
+	String query3 = String.format("""
+				SELECT Id, EXTRACT(YEAR FROM __time), EXTRACT(MONTH FROM __time), EXTRACT(DAY FROM __time),
+				AVG("ClosePrice"), MAX("ClosePrice"), MIN("ClosePrice")
+				FROM %s
+				WHERE EXTRACT(YEAR FROM __time) >= 2022 AND EXTRACT(YEAR FROM __time) < 2032
+				GROUP BY Id, EXTRACT(YEAR FROM __time), EXTRACT(MONTH FROM __time), EXTRACT(DAY FROM __time)
+				ORDER BY Id, EXTRACT(YEAR FROM __time), EXTRACT(MONTH FROM __time), EXTRACT(DAY FROM __time)
+				""", dataSourceName);
+	try (Connection connection = DriverManager.getConnection(queryURL, properties)) {
+            try (final PreparedStatement preparedStatement = connection.prepareStatement(query3)) {
+                startTime = System.nanoTime();
+                final ResultSet resultSet = preparedStatement.executeQuery();
+                endTime = System.nanoTime();
+                resultSet.close();
+            }
+        }
+	accTime += endTime-startTime;
+
+        return accTime / 1000 / 1000;
     }
 
     public double query2() throws SQLException, ClassNotFoundException {
