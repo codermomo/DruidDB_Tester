@@ -7,7 +7,9 @@ public interface BaseAdapter {
 
     public double insertData();
 
-    public double query1() throws SQLException, ClassNotFoundException;
+    public double query1a() throws SQLException, ClassNotFoundException;
+    public double query1b() throws SQLException, ClassNotFoundException;
+    public double query1c() throws SQLException, ClassNotFoundException;
     public double query2() throws SQLException, ClassNotFoundException;
     public double query3() throws SQLException, ClassNotFoundException;
 }
