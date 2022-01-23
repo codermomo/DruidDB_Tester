@@ -166,7 +166,32 @@ public class DruidAdapter implements BaseAdapter {
         return costTime;
     }
 
-    public double query1() throws SQLException, ClassNotFoundException {
+    public double query1a() throws SQLException, ClassNotFoundException {
+        Class.forName("org.apache.calcite.avatica.remote.Driver");
+        Properties properties = new Properties();
+        String query = String.format("""
+				SELECT Id, EXTRACT(YEAR FROM __time), 
+				AVG("ClosePrice"), MAX("ClosePrice"), MIN("ClosePrice")
+				FROM %s
+				WHERE EXTRACT(YEAR FROM __time) >= 2022 AND EXTRACT(YEAR FROM __time) < 2032
+				GROUP BY Id, EXTRACT(YEAR FROM __time)
+				ORDER BY Id, EXTRACT(YEAR FROM __time)
+				""", dataSourceName);
+
+        double startTime, endTime;
+        try (Connection connection = DriverManager.getConnection(queryURL, properties)) {
+            try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                startTime = System.nanoTime();
+                final ResultSet resultSet = preparedStatement.executeQuery();
+                endTime = System.nanoTime();
+                resultSet.close();
+            }
+        }
+        double accTime = endTime - startTime;
+        return accTime / 1000 / 1000; // in ms
+    }
+
+    public double query1b() throws SQLException, ClassNotFoundException {
         Class.forName("org.apache.calcite.avatica.remote.Driver");
         Properties properties = new Properties();
         String query = String.format("""
@@ -187,27 +212,14 @@ public class DruidAdapter implements BaseAdapter {
                 resultSet.close();
             }
         }
-	double accTime = endTime - startTime;
-	
-	String query2 = String.format("""
-				SELECT Id, EXTRACT(YEAR FROM __time), 
-				AVG("ClosePrice"), MAX("ClosePrice"), MIN("ClosePrice")
-				FROM %s
-				WHERE EXTRACT(YEAR FROM __time) >= 2022 AND EXTRACT(YEAR FROM __time) < 2032
-				GROUP BY Id, EXTRACT(YEAR FROM __time)
-				ORDER BY Id, EXTRACT(YEAR FROM __time)
-				""", dataSourceName);
-	try (Connection connection = DriverManager.getConnection(queryURL, properties)) {
-            try (final PreparedStatement preparedStatement = connection.prepareStatement(query2)) {
-                startTime = System.nanoTime();
-                final ResultSet resultSet = preparedStatement.executeQuery();
-                endTime = System.nanoTime();
-                resultSet.close();
-            }
-        }
-	accTime += endTime-startTime;
-	
-	String query3 = String.format("""
+        double accTime = endTime - startTime;
+        return accTime / 1000 / 1000; // in ms
+    }
+
+    public double query1c() throws SQLException, ClassNotFoundException {
+        Class.forName("org.apache.calcite.avatica.remote.Driver");
+        Properties properties = new Properties();
+        String query = String.format("""
 				SELECT Id, EXTRACT(YEAR FROM __time), EXTRACT(MONTH FROM __time), EXTRACT(DAY FROM __time),
 				AVG("ClosePrice"), MAX("ClosePrice"), MIN("ClosePrice")
 				FROM %s
@@ -215,17 +227,18 @@ public class DruidAdapter implements BaseAdapter {
 				GROUP BY Id, EXTRACT(YEAR FROM __time), EXTRACT(MONTH FROM __time), EXTRACT(DAY FROM __time)
 				ORDER BY Id, EXTRACT(YEAR FROM __time), EXTRACT(MONTH FROM __time), EXTRACT(DAY FROM __time)
 				""", dataSourceName);
-	try (Connection connection = DriverManager.getConnection(queryURL, properties)) {
-            try (final PreparedStatement preparedStatement = connection.prepareStatement(query3)) {
+
+        double startTime, endTime;
+        try (Connection connection = DriverManager.getConnection(queryURL, properties)) {
+            try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 startTime = System.nanoTime();
                 final ResultSet resultSet = preparedStatement.executeQuery();
                 endTime = System.nanoTime();
                 resultSet.close();
             }
         }
-	accTime += endTime-startTime;
-
-        return accTime / 1000 / 1000;
+        double accTime = endTime - startTime;
+        return accTime / 1000 / 1000; // in ms
     }
 
     public double query2() throws SQLException, ClassNotFoundException {
@@ -284,7 +297,6 @@ public class DruidAdapter implements BaseAdapter {
 				GROUP BY Id, EXTRACT(YEAR FROM __time)
 				ORDER BY Id, EXTRACT(YEAR FROM __time)
 				""", dataSourceName);
-
 		double startTime, endTime;
         try (Connection connection = DriverManager.getConnection(queryURL, properties)) {
         	try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -296,7 +308,6 @@ public class DruidAdapter implements BaseAdapter {
         }
 		return (endTime - startTime) / 1000 / 1000;
 	}
-
 	public double query1b() throws SQLException, ClassNotFoundException {
 		Class.forName("org.apache.calcite.avatica.remote.Driver");
 		Properties properties = new Properties();
@@ -307,7 +318,6 @@ public class DruidAdapter implements BaseAdapter {
 				GROUP BY Id, EXTRACT(YEAR FROM __time), EXTRACT(MONTH FROM __time)
 				ORDER BY Id, EXTRACT(YEAR FROM __time), EXTRACT(MONTH FROM __time)
 				""", dataSourceName);
-
 		double startTime, endTime;
         try (Connection connection = DriverManager.getConnection(queryURL, properties)) {
         	try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -317,10 +327,8 @@ public class DruidAdapter implements BaseAdapter {
         		resultSet.close();
         	}
         }
-
 		return (endTime - startTime) / 1000 / 1000;
 	}
-
 	public double query1c() throws SQLException, ClassNotFoundException {
 		Class.forName("org.apache.calcite.avatica.remote.Driver");
 		Properties properties = new Properties();
@@ -331,7 +339,6 @@ public class DruidAdapter implements BaseAdapter {
 				GROUP BY Id, EXTRACT(YEAR FROM __time), EXTRACT(DAY FROM __time)
 				ORDER BY Id, EXTRACT(YEAR FROM __time), EXTRACT(DAY FROM __time)
 				""", dataSourceName);
-
 		double startTime, endTime;
         try (Connection connection = DriverManager.getConnection(queryURL, properties)) {
         	try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -341,7 +348,6 @@ public class DruidAdapter implements BaseAdapter {
         		resultSet.close();
         	}
         }
-
 		return (endTime - startTime) / 1000 / 1000;
 	}
 	*/
