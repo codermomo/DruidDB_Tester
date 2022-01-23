@@ -38,11 +38,11 @@ public class Druid_Tester {
             avgQ1c += query1cresult;
             DruidAdapter.appendToFile("Druid DB Query.csv", "\"" + query1cresult + "\",");
             // print Q2
-            Double query2result = query2(adapter);
+            Double query2result = 0.0;
             avgQ2 += query2result;
             DruidAdapter.appendToFile("Druid DB Query.csv", "\"" + query2result + "\",");
             // print Q3
-            Double query3result = query3(adapter);
+            Double query3result = 0.0;
             avgQ3 += query3result;
             DruidAdapter.appendToFile("Druid DB Query.csv", "\"" + query3result + "\"\n");
         }
